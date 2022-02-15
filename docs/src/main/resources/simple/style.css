@@ -75,6 +75,14 @@ body {
     padding: 16px 24px;
 }
 
+#sidebar .nav .child {
+    background: none;
+    border-bottom: 1px solid #455A64;
+    color: #CFD8DC;
+    font-size: 10px;
+    padding: 20px 15px;
+}
+
 #sidebar .nav a:hover {
     background: none;
     color: #ECEFF1;
