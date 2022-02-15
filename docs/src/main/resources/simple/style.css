@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,400i,500');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400&display=swap');
+
+body {
+    overflow-x: hidden;
+    font-family: 'Fira Code', sans-serif;
+}
+
+/* Toggle Styles */
+
+#viewport {
+    padding-left: 250px;
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+#content {
+    width: 100%;
+    position: relative;
+    margin-right: 0;
+}
+
+/* Sidebar Styles */
+
+#sidebar {
+    z-index: 1000;
+    position: fixed;
+    left: 250px;
+    width: 250px;
+    height: 100%;
+    margin-left: -250px;
+    overflow-y: auto;
+    background: #37474F;
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+#sidebar header {
+    background-color: #263238;
+    padding-right: 12px;
+    padding-left: 12px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+#sidebar header #title {
+    color: #fff;
+    font-size: 26px;
+    text-decoration: none;
+}
+
+#subtitle {
+    color: #fff;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+#sidebar header a:hover {
+    color: #fff;
+}
+
+#sidebar .nav {
+
+}
+
+#sidebar .nav a {
+    background: none;
+    border-bottom: 1px solid #455A64;
+    color: #CFD8DC;
+    font-size: 14px;
+    padding: 16px 24px;
+}
+
+#sidebar .nav a:hover {
+    background: none;
+    color: #ECEFF1;
+}
+
+#sidebar .nav a i {
+    margin-right: 16px;
+}
+
+hr {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    border: 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+table {
+    border: 0;
+    border-spacing: 0;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.required {
+    color: #9e0000;
+    font-size: x-small;
+    text-decoration: none;
+    vertical-align: top;
+}
+
+label {
+    vertical-align: top;
+}
+
+.label-pill {
+    padding-right: .6em;
+    padding-left: .6em;
+    border-radius: 10rem;
+}
+
+#method {
+    display: flex;
+    width: 50%;
+    white-space: pre;
+}
