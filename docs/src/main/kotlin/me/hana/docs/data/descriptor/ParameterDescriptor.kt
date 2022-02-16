@@ -4,6 +4,7 @@ data class ParameterDescriptor(
     var name: String = "",
     var desc: String = "",
     var type: String = "",
+    var simpleType: String = "",
     var sample: String = "",
     var sampleBeauty: String = "",
     var isRequired: Boolean = false,

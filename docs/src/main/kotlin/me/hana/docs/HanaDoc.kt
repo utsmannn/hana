@@ -8,19 +8,53 @@ import io.ktor.server.routing.*
 import io.ktor.util.*
 import me.hana.docs.data.configuration.Configuration
 import me.hana.docs.data.descriptor.FieldDescriptor
+import me.hana.docs.endpoint.EndPoint
+import me.hana.docs.endpoint.EndPointGroup
 
 class HanaDocs(val configuration: Configuration) {
-    val endPoints: MutableList<EndPoint> = mutableListOf()
+    private val endPoints: MutableList<EndPoint> = mutableListOf(EndPoint.other())
+    private val parents: MutableList<String> = mutableListOf()
 
     fun addEndPoint(route: Route, endPoint: EndPoint) {
         val path = route.toStringPath()
         val method = route.toStringMethod()
+        val parent = route.parent?.toStringPath().orEmpty()
+        val isParent = method.isEmpty()
+        if (isParent) parents.add(parent)
+
         endPoint.apply {
             this.path = path
             this.method = method
+            this.isParent = isParent
+
+            val endPointParent = parents.find { it.contains(path) }.orEmpty()
+            this.parent = endPointParent
         }
 
         endPoints.add(endPoint)
+    }
+
+    fun getGroup(): List<EndPointGroup> {
+        val endPointParent = endPoints.filter { it.isParent }
+        val newEndPoints = endPoints.filter { !it.isParent }.map {
+            val parent = endPointParent.map { it.path }.filter { it.isNotEmpty() }
+            it.parent = parent.find { p -> p.contains(it.title) }.orEmpty()
+            it
+        }
+
+        val groupEndPoint = endPoints.filter { it.isParent }
+
+        val data = groupEndPoint.map { group ->
+            val child = newEndPoints.filter { it.parent == group.path }.sortedBy { it.priority }
+            EndPointGroup(
+                name = group.title,
+                endPoint = group,
+                child = child,
+                priority = group.priority
+            )
+        }.sortedBy { it.priority }
+
+        return data
     }
 
     fun getAllObject(): Map<String, List<FieldDescriptor.MemberFieldDescriptor>> {
@@ -55,11 +89,25 @@ class HanaDocs(val configuration: Configuration) {
             return hanaDocs
         }
     }
+
+    internal data class ParentAttribute(
+        var name: String = "",
+        var path: String = "",
+        var endPoint: EndPoint = EndPoint()
+    )
 }
 
-fun Route.hanaDocs(endPoint: EndPoint.() -> Unit) {
+fun Route.hanaDocs(title: String, endPoint: EndPoint.() -> Unit) {
     val endPointInstance = EndPoint().apply(endPoint)
     val hana = application.plugin(HanaDocs)
+    endPointInstance.title = title
+    hana.addEndPoint(this, endPointInstance)
+}
+
+fun Route.hanaDocsGroup(title: String, endPoint: EndPoint.() -> Unit) {
+    val endPointInstance = EndPoint().apply(endPoint)
+    val hana = application.plugin(HanaDocs)
+    endPointInstance.title = title
     hana.addEndPoint(this, endPointInstance)
 }
 
@@ -81,7 +129,7 @@ internal fun Route.toStringMethod(): String {
         val splitPath = rawString.split("method:")
         splitPath.getOrNull(splitPath.lastIndex).orEmpty().removeSuffix(")")
     } else {
-        rawString
+        ""
     }
 
     return path

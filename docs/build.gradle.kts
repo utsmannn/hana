@@ -1,6 +1,7 @@
 val ktor_version: String by project
 val logback_version: String by project
 val commonmark_version: String by project
+val app_version: String by project
 
 plugins {
     `maven-publish`
@@ -15,7 +16,7 @@ publishing {
         create<MavenPublication>("maven") {
             groupId = "com.github.utsmannn"
             artifactId = "hana-doc"
-            version = "0.0.10"
+            version = app_version
 
             from(components["java"])
         }
@@ -23,7 +24,7 @@ publishing {
 }
 
 group = "me.hana"
-version = "0.0.10"
+version = app_version
 
 dependencies {
 

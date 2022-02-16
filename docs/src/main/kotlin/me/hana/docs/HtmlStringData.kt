@@ -5,6 +5,7 @@ import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
 import me.hana.docs.data.descriptor.FieldDescriptor
 import me.hana.docs.data.descriptor.ParameterDescriptor
+import me.hana.docs.endpoint.EndPoint
 
 data class HtmlStringData(
     var title: String = "",
@@ -20,7 +21,7 @@ data class HtmlStringData(
         fun fromHana(hanaDocs: HanaDocs): HtmlStringData {
             val sidebar = buildString {
                 appendHTML().div {
-                    ul(classes = "nav") {
+                    /*ul(classes = "nav list-group") {
                         hanaDocs.endPoints.forEach {
                             li {
                                 a(href = "#${it.idLink()}") {
@@ -29,6 +30,52 @@ data class HtmlStringData(
                                 }
                             }
                         }
+                    }
+
+                    div(classes = "title-group") {
+                        h4 { +"Other" }
+                    }
+
+                    ul(classes = "nav list-group") {
+                        li {
+                            a(href = "#object") {
+                                i(classes = "fa-solid fa-code")
+                                +"Objects"
+                            }
+                        }
+                    }*/
+
+                    hanaDocs.getGroup().forEach {
+                        val title = it.name
+                        val endPoint = it.child
+                        div(classes = "title-group") {
+                            a(href = "#${title.idLink()}") {
+                                h4(classes = "link-none") {
+                                    +title
+                                }
+                            }
+                        }
+
+                        ul(classes = "nav list-group") {
+                            endPoint.forEach { endPoint ->
+                                val isParent = endPoint.isParent
+                                if (!isParent) {
+                                    li {
+                                        a(href = "#${endPoint.idLink()}") {
+                                            i(classes = "fa-solid fa-file-code")
+                                            +endPoint.title
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    div(classes = "title-group") {
+                        h4 { +"Mics" }
+                    }
+
+                    ul(classes = "nav list-group") {
                         li {
                             a(href = "#object") {
                                 i(classes = "fa-solid fa-code")
@@ -41,48 +88,73 @@ data class HtmlStringData(
 
             val content = buildString {
                 appendHTML().div {
-                    hanaDocs.endPoints.forEach {
+                    hanaDocs.getGroup().forEach { group ->
+                        val parentEndPoint = group.endPoint
+                        val child = group.child
+
                         h2 {
-                            id = it.idLink()
-                            +it.title
-                        }
-                        val labelClass = "label label-pill label-" + when (HttpMethod.parse(it.method)) {
-                            HttpMethod.Get -> "primary"
-                            HttpMethod.Post -> "success"
-                            HttpMethod.Put -> "warning"
-                            HttpMethod.Patch -> "info"
-                            HttpMethod.Delete -> "danger"
-                            else -> "secondary"
+                            id = parentEndPoint.idLink()
+                            +parentEndPoint.title
                         }
 
-                        div(classes = "breadcrumb") {
-                            h4 {
-                                id = "method"
-                                span(classes = labelClass) {
-                                    +it.method
-                                }
-                                +" "
-                                +it.path
+                        markdown(parentEndPoint.description)
+                        renderParameter(hanaDocs, parentEndPoint, hanaDocs.configuration.host, false)
+
+                        child.forEach {
+                            h3 {
+                                id = it.idLink()
+                                +it.title
                             }
+                            val labelClass = "label label-pill label-" + when (HttpMethod.parse(it.method)) {
+                                HttpMethod.Get -> "primary"
+                                HttpMethod.Post -> "success"
+                                HttpMethod.Put -> "warning"
+                                HttpMethod.Patch -> "info"
+                                HttpMethod.Delete -> "danger"
+                                else -> "secondary"
+                            }
+
+                            div(classes = "breadcrumb") {
+                                h4 {
+                                    id = "method"
+                                    span(classes = labelClass) {
+                                        +it.method
+                                    }
+                                    +" "
+                                    +it.path
+                                }
+                            }
+                            markdown(it.description)
+                            renderParameter(hanaDocs, it, hanaDocs.configuration.host)
+                            renderResponse(fieldDescriptor = it.responseField, "Response")
+                            hr { }
+                            br { }
                         }
-                        markdown(it.description)
-                        renderParameter(hanaDocs, it, hanaDocs.configuration.host)
-                        renderResponse(fieldDescriptor = it.responseField, "Response")
-                        hr { }
+
                     }
                 }
             }
 
-            val topMenuBody = if (hanaDocs.configuration.github.isNotEmpty()) {
-                buildString {
-                    appendHTML().li {
-                        a(href = hanaDocs.configuration.github) {
-                            +"Github"
+            val topMenuBody = buildString {
+                val hasGithub = hanaDocs.configuration.github.isNotEmpty()
+                val hasPostman = hanaDocs.configuration.postman.isNotEmpty()
+                appendHTML().apply {
+                    if (hasGithub) {
+                        li {
+                            a(href = hanaDocs.configuration.github, target = "blank") {
+                                +"Github"
+                            }
+                        }
+                    }
+
+                    if (hasPostman) {
+                        li {
+                            a(href = hanaDocs.configuration.postman, target = "blank") {
+                                +"Run on Postman"
+                            }
                         }
                     }
                 }
-            } else {
-                ""
             }
 
             val preamble = if (hanaDocs.configuration.description.isNotEmpty()) {
@@ -109,6 +181,14 @@ data class HtmlStringData(
             val objectData = buildString {
                 appendHTML().div {
                     renderObject(hanaDocs)
+                    div {
+                        hr {  }
+                        a(href = "https://github.com/utsmannn/hana-ktordoc", target = "blank") {
+                            h5 {
+                                +"Generated by HanaDoc"
+                            }
+                        }
+                    }
                 }
             }
 
@@ -190,7 +270,12 @@ data class HtmlStringData(
             }
         }
 
-        private fun FlowContent.renderParameter(hanaDocs: HanaDocs, endPoint: EndPoint, host: String) {
+        private fun FlowContent.renderParameter(
+            hanaDocs: HanaDocs,
+            endPoint: EndPoint,
+            host: String,
+            withSample: Boolean = true
+        ) {
             val params = endPoint.params
             val path = endPoint.path
             val method = endPoint.method
@@ -198,7 +283,7 @@ data class HtmlStringData(
             val objectAvailable = hanaDocs.getAllObject().map { it.value }.flatten()
 
             val isObjectData: (type: String) -> Boolean = {
-                objectAvailable.map { it.objectId }.contains(it)
+                objectAvailable.map { obj -> obj.objectId }.contains(it)
             }
 
             val renderTable = {
@@ -226,7 +311,7 @@ data class HtmlStringData(
                                     +key
                                 }
                                 td {
-                                    val type = param.type
+                                    val type = param.simpleType
                                     if (isObjectData.invoke(type)) {
                                         a("#${type.idTypeOf()}") {
                                             +type
@@ -315,7 +400,6 @@ data class HtmlStringData(
                 if (hasSampleBody) {
                     firstOrNull()?.let {
                         sample += "$space-d '${it.second}' \\\n"
-                            .replace("\n", "\n$space")
                     }
                 }
                 sample
@@ -336,15 +420,20 @@ data class HtmlStringData(
                 +"Parameter"
             }
             renderTable.invoke()
-
-            h5 {
-                +"Sample"
+            if (withSample) {
+                h5 {
+                    +"Sample"
+                }
+                codeBlock(sampleTemplate)
             }
-            codeBlock(sampleTemplate)
         }
 
         private fun EndPoint.idLink(): String {
-            return this.title.replace(" ", "-")
+            return title.replace(" ", "-")
+        }
+
+        private fun String.idLink(): String {
+            return replace(" ", "-")
         }
     }
 }

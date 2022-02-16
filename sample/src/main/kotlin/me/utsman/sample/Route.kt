@@ -5,6 +5,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import me.hana.docs.*
 import me.hana.docs.annotation.DocFieldDescription
+import me.hana.docs.endpoint.*
 
 data class AnuanResponse(
     @DocFieldDescription("data of response")
@@ -44,23 +45,48 @@ data class Wew(
 
 fun Application.configureRoute() {
     install(HanaDocs) {
-        title = "Sample doc"
+        title = "Sample doc ya ya yaaaa"
         path = "/haduh"
         github = "https://github.com/utsmannn"
+        postman = "https://app.getpostman.com/run-collection/65a1ff2b518c8e46615b"
         author = "Muhammad utsman"
         description = """
             This is documentation for sample HanaDoc
         """.trimIndent()
     }
 
+
     routing {
+
+        route("/user") {
+            hanaDocs("Hiyaa") {
+                description = "user yaa hh parent nye"
+                setPriority(1)
+                headerParameter("Auth", String::class) {
+                    description = "nah ini yaaaa"
+                    sample = "hmmmmmm"
+                    isRequired()
+                }
+            }
+
+            get {
+                call.respond(Wew())
+            }.hanaDocs("user") {
+                description = "hiyaaaa"
+            }
+        }
+
         get("/hai") {
             call.respond("Duuh")
-        }.hanaDocs {
-            title = "Haiii"
+        }.hanaDocs("Hai") {
             description = desc1
 
             responseDescriptor(Wew())
+
+            headerParameter("Authorization", String::class) {
+                description = "token nya"
+                sample = "uisdfhguijghv5784"
+            }
 
             pathParameter("id", String::class) {
                 description = "id of hai ya"
@@ -86,8 +112,7 @@ fun Application.configureRoute() {
 
         get("/cuk") {
             call.respond("Cukk")
-        }.hanaDocs {
-            title = "Cuk"
+        }.hanaDocs("Cuk") {
             description = desc2
 
             pathParameter("iyaaa", String::class) {
@@ -101,13 +126,14 @@ fun Application.configureRoute() {
                 isRequired()
             }
 
-            responseDescriptor(AnuanBody())
+            responseDescriptor(
+                MainResponse.bindToResponse(AnuanBody(), "cuk")
+            )
         }
 
         post("/cuuk") {
             call.respond("asas")
-        }.hanaDocs {
-            title = "cuuuk"
+        }.hanaDocs("cuk2") {
             description = desc5
 
             queryParameter("wahh", String::class) {
@@ -118,11 +144,9 @@ fun Application.configureRoute() {
         route("/awer") {
             get("/hmmmm") {
                 call.respond("hmmm")
-            }.hanaDocs {
-                title = "awer"
+            }.hanaDocs("tekewer") {
                 description = desc4
             }
         }
-
     }
 }

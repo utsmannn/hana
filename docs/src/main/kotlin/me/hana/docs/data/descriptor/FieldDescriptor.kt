@@ -3,6 +3,7 @@ package me.hana.docs.data.descriptor
 import me.hana.docs.*
 import me.hana.docs.annotation.DocFieldDescription
 import kotlin.reflect.KClass
+import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.jvm.javaField
 
@@ -21,10 +22,11 @@ data class FieldDescriptor(
             val title = data::class.simpleName.orEmpty()
             val jsonString = data.toJsonString()
 
-            val member = MemberFieldDescriptor.of(type)
+            val clazzReturn = MemberFieldDescriptor.of(type)
+            val member = clazzReturn.member
             val extendMember = member.map {
                 it.saveKClassObject.map { kClass ->
-                    MemberFieldDescriptor.of(kClass)
+                    MemberFieldDescriptor.of(kClass).member
                 }
             }.flatten().flatten()
 
@@ -51,20 +53,19 @@ data class FieldDescriptor(
         val saveKClassObject: MutableList<KClass<out Any>> = mutableListOf()
 
         companion object {
-            fun <T : Any> of(data: KClass<out T>): List<MemberFieldDescriptor> {
+            fun <T : Any> of(data: KClass<out T>): ClazzReturn {
                 val prop = data.declaredMemberProperties
                 val objectIncluded: MutableList<String> = mutableListOf()
                 val objectId = data.simpleName.orEmpty()
                 val saveKClassObject: MutableList<KClass<out Any>> = mutableListOf()
 
-                return prop.map {
+                val member = prop.map {
                     val annotation = it.javaField?.getAnnotation(DocFieldDescription::class.java)
                     val desc = annotation?.description.orEmpty()
                     val isRequired = annotation?.isRequired.orFalse()
 
                     val name = it.name
                     val returnTypeRaw = it.returnType.toString()
-                    println("return type found -> $returnTypeRaw")
                     val returnTypeWithId = if (
                         returnTypeRaw.startsWith("kotlin.Array")
                         || returnTypeRaw.startsWith("kotlin.collections.List")
@@ -89,18 +90,18 @@ data class FieldDescriptor(
                         val type = returnTypeRaw.removeKotlinPackage().lastOfPackage()
                         if (!returnTypeRaw.contains("kotlin.")) {
                             val clazzOf = try {
-                                Class.forName(returnTypeRaw.innerClassFixed()).kotlin
+                                val kClass = Class.forName(returnTypeRaw.innerClassFixed()).kotlin
+                                val instance = kClass.createInstance()
+                                instance::class.java.kotlin
                             } catch (e: ClassNotFoundException) {
                                 throw (ClassNotFoundException("Class of '$returnTypeRaw' not allowed, please cek documentation"))
                             }
                             saveKClassObject.add(clazzOf)
                             objectIncluded.add(returnTypeRaw.removeKotlinPackage().lastOfPackage())
-
                             TypeWithId(type, type.idTypeOf())
                         } else {
                             TypeWithId(type)
                         }
-
                     }
 
                     MemberFieldDescriptor(
@@ -115,14 +116,23 @@ data class FieldDescriptor(
                         this.saveKClassObject.addAll(saveKClassObject)
                     }
                 }
+
+                return ClazzReturn(
+                    type = data.qualifiedName.orEmpty(),
+                    member = member
+                )
             }
 
             private fun String.innerClassFixed(): String {
                 val listPart = split(".")
                 val size = listPart.lastIndex
-                return if (listPart[size-1].contains("([A-Z])".toRegex())) {
-                    replaceAfter(listPart[size-1], "\$${listPart[size]}")
-                } else {
+                return try {
+                    if (listPart[size-1].contains("([A-Z])".toRegex())) {
+                        replaceAfter(listPart[size-1], "\$${listPart[size]}")
+                    } else {
+                        this
+                    }
+                } catch (e: IndexOutOfBoundsException) {
                     this
                 }
             }
@@ -130,4 +140,9 @@ data class FieldDescriptor(
             private data class TypeWithId(val type: String, val id: String = "")
         }
     }
+
+    data class ClazzReturn(
+        var type: String = "",
+        var member: List<MemberFieldDescriptor> = emptyList()
+    )
 }
