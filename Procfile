@@ -1,0 +1,1 @@
+web: ./build/install/hana/sample/bin/hana/sample
