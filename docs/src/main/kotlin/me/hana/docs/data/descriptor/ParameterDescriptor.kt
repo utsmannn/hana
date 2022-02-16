@@ -12,6 +12,6 @@ data class ParameterDescriptor(
 ) {
 
     enum class Location {
-        PATH, QUERY, HEADER, BODY
+        PATH, QUERY, HEADER, BODY, MULTIPART
     }
 }

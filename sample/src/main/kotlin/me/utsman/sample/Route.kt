@@ -5,7 +5,9 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import me.hana.docs.*
 import me.hana.docs.annotation.DocFieldDescription
+import me.hana.docs.data.DocFile
 import me.hana.docs.endpoint.*
+import java.io.File
 
 data class AnuanResponse(
     @DocFieldDescription("data of response")
@@ -55,7 +57,6 @@ fun Application.configureRoute() {
         """.trimIndent()
     }
 
-
     routing {
 
         route("/user") {
@@ -73,6 +74,21 @@ fun Application.configureRoute() {
                 call.respond(Wew())
             }.hanaDocs("user") {
                 description = "hiyaaaa"
+
+                multipartParameter("name", String::class) {
+                    description = "this is name of file"
+                    sample = "haduh"
+                }
+
+                multipartParameter("image", DocFile::class) {
+                    description = "this is file"
+                    sample = DocFile("anu.jpg")
+                }
+
+                queryParameter("id", String::class) {
+                    description = "id of product"
+                    sample = "ukdghf784"
+                }
             }
         }
 
@@ -81,12 +97,7 @@ fun Application.configureRoute() {
         }.hanaDocs("Hai") {
             description = desc1
 
-            responseDescriptor(Wew())
-
-            headerParameter("Authorization", String::class) {
-                description = "token nya"
-                sample = "uisdfhguijghv5784"
-            }
+            responseSample(Wew())
 
             pathParameter("id", String::class) {
                 description = "id of hai ya"
@@ -126,7 +137,7 @@ fun Application.configureRoute() {
                 isRequired()
             }
 
-            responseDescriptor(
+            responseSample(
                 MainResponse.bindToResponse(AnuanBody(), "cuk")
             )
         }

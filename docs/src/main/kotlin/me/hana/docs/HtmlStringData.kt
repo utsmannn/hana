@@ -21,30 +21,6 @@ data class HtmlStringData(
         fun fromHana(hanaDocs: HanaDocs): HtmlStringData {
             val sidebar = buildString {
                 appendHTML().div {
-                    /*ul(classes = "nav list-group") {
-                        hanaDocs.endPoints.forEach {
-                            li {
-                                a(href = "#${it.idLink()}") {
-                                    i(classes = "fa-solid fa-file-code")
-                                    +it.title
-                                }
-                            }
-                        }
-                    }
-
-                    div(classes = "title-group") {
-                        h4 { +"Other" }
-                    }
-
-                    ul(classes = "nav list-group") {
-                        li {
-                            a(href = "#object") {
-                                i(classes = "fa-solid fa-code")
-                                +"Objects"
-                            }
-                        }
-                    }*/
-
                     hanaDocs.getGroup().forEach {
                         val title = it.name
                         val endPoint = it.child
@@ -62,7 +38,7 @@ data class HtmlStringData(
                                 if (!isParent) {
                                     li {
                                         a(href = "#${endPoint.idLink()}") {
-                                            i(classes = "fa-solid fa-file-code")
+                                            i(classes = "fa-solid fa-code")
                                             +endPoint.title
                                         }
                                     }
@@ -336,6 +312,7 @@ data class HtmlStringData(
             val parameterQuery = params.filter { it.value.location == ParameterDescriptor.Location.QUERY }
             val parameterHeader = params.filter { it.value.location == ParameterDescriptor.Location.HEADER }
             val parameterBody = params.filter { it.value.location == ParameterDescriptor.Location.BODY }
+            val parameterMultipart = params.filter { it.value.location == ParameterDescriptor.Location.MULTIPART }
 
             val space = " ".repeat(2)
             val hostValid = if (host.contains("http")) {
@@ -354,6 +331,9 @@ data class HtmlStringData(
                 .filter { it.value.sample.isNotEmpty() }.map { it.value.sample }.isNotEmpty()
 
             val hasSampleBody = parameterBody
+                .filter { it.value.sample.isNotEmpty() }.map { it.value.sample }.isNotEmpty()
+
+            val hasSampleMultipart = parameterMultipart
                 .filter { it.value.sample.isNotEmpty() }.map { it.value.sample }.isNotEmpty()
 
             val hasParam = params.isNotEmpty()
@@ -405,6 +385,16 @@ data class HtmlStringData(
                 sample
             }
 
+            val sampleMultipart = parameterMultipart.map { it.key to it.value.sample }.run {
+                var sample = ""
+                if (hasSampleMultipart) {
+                    forEach {
+                        sample += "$space-F '${it.first}:${it.second}' \\\n"
+                    }
+                }
+                sample
+            }
+
             val sampleUrl = "$hostValid$samplePath$sampleQuery"
                 .removeSuffix("?")
                 .removeStringTag()
@@ -413,6 +403,7 @@ data class HtmlStringData(
             val sampleTemplate = "curl -X $method \\\n" +
                     sampleHeader +
                     sampleBody +
+                    sampleMultipart +
                     "$space$sampleUrl"
 
             br { }

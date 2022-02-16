@@ -1,5 +1,7 @@
 package me.hana.docs.endpoint
 
+import me.hana.docs.*
+import me.hana.docs.data.DocFile
 import me.hana.docs.data.descriptor.FieldDescriptor
 import me.hana.docs.data.descriptor.ParameterDescriptor
 import me.hana.docs.data.Parameter
@@ -65,6 +67,10 @@ fun <T: Any> EndPoint.headerParameter(name: String, clazz: KClass<T>, param: Par
     paramOf(name, ParameterDescriptor.Location.HEADER, clazz, param)
 }
 
+fun <T: Any> EndPoint.multipartParameter(name: String, clazz: KClass<T>, param: Parameter<T>.() -> Unit) {
+    paramOf(name, ParameterDescriptor.Location.MULTIPART, clazz, param)
+}
+
 fun <T: Any> EndPoint.bodyParameter(clazz: KClass<T>, param: Parameter<T>.() -> Unit) {
     paramOf("body", ParameterDescriptor.Location.BODY, clazz, param)
 }
@@ -75,15 +81,32 @@ fun EndPoint.setPriority(priority: Int) {
 
 private fun <T: Any> EndPoint.paramOf(name: String, location: ParameterDescriptor.Location, clazz: KClass<T>, param: Parameter<T>.() -> Unit) {
     val parameter = Parameter<T>().apply(param)
-    val type = FieldDescriptor.MemberFieldDescriptor.of(clazz).type
-    val simpleType = clazz.simpleName?.lastOfPackage().orEmpty()
+    val type = if (clazz.isDocFile()) {
+        "File"
+    } else {
+        FieldDescriptor.MemberFieldDescriptor.of(clazz).type
+    }
+    val simpleType = if (clazz.isDocFile()) {
+        "File"
+    } else {
+        clazz.simpleName?.lastOfPackage().orEmpty()
+    }
+    val sample: (Boolean) -> String = {
+        if (clazz.isDocFile()) {
+            "@${(parameter.sample as DocFile).fileName}"
+        } else {
+            parameter.sample.toJsonString(it).removeNullString()
+        }
+    }
+
+
     val paramDescriptor = ParameterDescriptor(
         name = name,
         desc = parameter.description,
         type = type,
         simpleType = simpleType,
-        sample = parameter.sample.toJsonString(false).removeNullString(),
-        sampleBeauty = parameter.sample.toJsonString().removeNullString(),
+        sample = sample.invoke(false),
+        sampleBeauty = sample.invoke(true),
         location = location
     )
     params[name] = paramDescriptor
@@ -101,12 +124,12 @@ fun EndPoint.sampleBody(data: Any) {
     response = data.toJsonString()
 }
 
-fun EndPoint.responseDescriptor(data: Any) {
+fun EndPoint.responseSample(data: Any) {
     val fieldDescriptor = FieldDescriptor.of(data)
     responseField = fieldDescriptor
 }
 
-fun EndPoint.requestDescriptor(data: Any) {
+fun EndPoint.requestSample(data: Any) {
     val fieldDescriptor = FieldDescriptor.of(data)
     requestField = fieldDescriptor
 }

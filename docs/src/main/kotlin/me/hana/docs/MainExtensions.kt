@@ -4,11 +4,13 @@ import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import kotlinx.html.HTMLTag
 import kotlinx.html.unsafe
+import me.hana.docs.data.DocFile
 import org.commonmark.parser.Parser
 import org.commonmark.renderer.html.HtmlRenderer
 import java.util.*
+import kotlin.reflect.KClass
 
-fun <T>T.toJsonString(beauty: Boolean = true): String {
+internal fun <T>T.toJsonString(beauty: Boolean = true): String {
     val gson = GsonBuilder()
         .apply {
             if (beauty) {
@@ -20,32 +22,32 @@ fun <T>T.toJsonString(beauty: Boolean = true): String {
     return gson.toJson(this, type)
 }
 
-fun Boolean?.orFalse(): Boolean = this ?: false
+internal fun Boolean?.orFalse(): Boolean = this ?: false
 
-fun String.lastOfPackage(): String {
+internal fun String.lastOfPackage(): String {
     return split(".").last()
 }
 
-fun String.removeKotlinPackage(): String {
+internal fun String.removeKotlinPackage(): String {
     return replace("kotlin.", "")
 }
 
-fun String.removeStringTag(): String {
+internal fun String.removeStringTag(): String {
     return replace("\"", "")
 }
 
-fun String.replaceSpaceUrl(): String {
+internal fun String.replaceSpaceUrl(): String {
     return replace(" ", "+")
 }
-fun String.removeNullString(): String {
+internal fun String.removeNullString(): String {
     return replace("null", "")
 }
 
-fun String.idTypeOf(): String {
+internal fun String.idTypeOf(): String {
     return lowercase().replace(" ", "-")
 }
 
-fun HTMLTag.markdown(markdown: String, inline: Boolean = false) {
+internal fun HTMLTag.markdown(markdown: String, inline: Boolean = false) {
     val parser = Parser.builder().build()
     val renderer = HtmlRenderer.builder().build()
 
@@ -56,4 +58,8 @@ fun HTMLTag.markdown(markdown: String, inline: Boolean = false) {
             +html.replace(Regex("</?p>"), "")
         else +html
     }
+}
+
+internal fun <T: Any>KClass<T>.isDocFile(): Boolean {
+    return isInstance(DocFile("")).orFalse()
 }
