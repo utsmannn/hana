@@ -88,8 +88,8 @@ data class FieldDescriptor(
                     } else {
                         val type = returnTypeRaw.removeKotlinPackage().lastOfPackage()
                         if (!returnTypeRaw.contains("kotlin.")) {
-                            val instance = Class.forName(returnTypeRaw).kotlin
-                            saveKClassObject.add(instance)
+                            val clazzOf = Class.forName(returnTypeRaw.innerClassFixed()).kotlin
+                            saveKClassObject.add(clazzOf)
                             objectIncluded.add(returnTypeRaw.removeKotlinPackage().lastOfPackage())
 
                             TypeWithId(type, type.idTypeOf())
@@ -110,6 +110,16 @@ data class FieldDescriptor(
                     ).apply {
                         this.saveKClassObject.addAll(saveKClassObject)
                     }
+                }
+            }
+
+            private fun String.innerClassFixed(): String {
+                val listPart = split(".")
+                val size = listPart.lastIndex
+                return if (listPart[size-1].contains("([A-Z])".toRegex())) {
+                    replaceAfter(listPart[size-1], "\$${listPart[size]}")
+                } else {
+                    this
                 }
             }
 

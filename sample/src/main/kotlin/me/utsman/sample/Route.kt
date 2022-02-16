@@ -31,6 +31,17 @@ data class AduuhBody(
     val yesanu: String = ""
 )
 
+data class Wew(
+    @DocDescription("hiyaaa")
+    val hiyaa: String = "",
+    val data: Cuk = Cuk()
+) {
+    data class Cuk(
+        @DocDescription("cuk")
+        val cuk: String = ""
+    )
+}
+
 fun Application.configureRoute() {
     install(HanaDocs) {
         title = "Sample doc"
@@ -49,7 +60,7 @@ fun Application.configureRoute() {
             title = "Haiii"
             description = desc1
 
-            responseDescriptor(AnuanResponse())
+            responseDescriptor(Wew())
 
             pathParameter("id", String::class) {
                 description = "id of hai ya"
