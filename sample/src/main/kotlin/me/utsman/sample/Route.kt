@@ -58,9 +58,8 @@ fun Application.configureRoute() {
     }
 
     routing {
-
         route("/user") {
-            hanaDocs("Hiyaa") {
+            hanaDocsParent("Hiyaa") {
                 description = "user yaa hh parent nye"
                 setPriority(1)
                 headerParameter("Auth", String::class) {
@@ -72,7 +71,7 @@ fun Application.configureRoute() {
 
             get {
                 call.respond(Wew())
-            }.hanaDocs("user") {
+            }.hanaDocs("user", parent = "/user") {
                 description = "hiyaaaa"
 
                 multipartParameter("name", String::class) {
@@ -153,9 +152,13 @@ fun Application.configureRoute() {
         }
 
         route("/awer") {
+            hanaDocsParent("Awer") {
+                description = "the awer"
+                setPriority(2)
+            }
             get("/hmmmm") {
                 call.respond("hmmm")
-            }.hanaDocs("tekewer") {
+            }.hanaDocs("tekewer", parent = "/awer") {
                 description = desc4
             }
         }

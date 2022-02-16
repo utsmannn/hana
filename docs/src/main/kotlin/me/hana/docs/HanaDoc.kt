@@ -19,30 +19,21 @@ class HanaDocs(val configuration: Configuration) {
         val path = route.toStringPath()
         val method = route.toStringMethod()
         val parent = route.parent?.toStringPath().orEmpty()
-        val isParent = method.isEmpty()
+        val isParent = endPoint.isParent
         if (isParent) parents.add(parent)
 
         endPoint.apply {
             this.path = path
             this.method = method
             this.isParent = isParent
-
-            val endPointParent = parents.find { it.contains(path) }.orEmpty()
-            this.parent = endPointParent
         }
 
         endPoints.add(endPoint)
     }
 
     fun getGroup(): List<EndPointGroup> {
-        val endPointParent = endPoints.filter { it.isParent }
-        val newEndPoints = endPoints.filter { !it.isParent }.map {
-            val parent = endPointParent.map { it.path }.filter { it.isNotEmpty() }
-            it.parent = parent.find { p -> p.contains(it.title) }.orEmpty()
-            it
-        }
-
         val groupEndPoint = endPoints.filter { it.isParent }
+        val newEndPoints = endPoints.filter { !it.isParent }
 
         val data = groupEndPoint.map { group ->
             val child = newEndPoints.filter { it.parent == group.path }.sortedBy { it.priority }
@@ -89,25 +80,23 @@ class HanaDocs(val configuration: Configuration) {
             return hanaDocs
         }
     }
-
-    internal data class ParentAttribute(
-        var name: String = "",
-        var path: String = "",
-        var endPoint: EndPoint = EndPoint()
-    )
 }
 
-fun Route.hanaDocs(title: String, endPoint: EndPoint.() -> Unit) {
+fun Route.hanaDocs(title: String, parent: String = "", endPoint: EndPoint.() -> Unit = {}) {
     val endPointInstance = EndPoint().apply(endPoint)
     val hana = application.plugin(HanaDocs)
     endPointInstance.title = title
+    endPointInstance.isParent = false
+    endPointInstance.parent = parent
     hana.addEndPoint(this, endPointInstance)
 }
 
-fun Route.hanaDocsGroup(title: String, endPoint: EndPoint.() -> Unit) {
+fun Route.hanaDocsParent(title: String, parent: String = "", endPoint: EndPoint.() -> Unit = {}) {
     val endPointInstance = EndPoint().apply(endPoint)
     val hana = application.plugin(HanaDocs)
     endPointInstance.title = title
+    endPointInstance.isParent = true
+    endPointInstance.parent = parent
     hana.addEndPoint(this, endPointInstance)
 }
 
