@@ -4,40 +4,40 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import me.hana.docs.*
-import me.hana.docs.annotation.DocDescription
+import me.hana.docs.annotation.DocFieldDescription
 
 data class AnuanResponse(
-    @DocDescription("data of response")
+    @DocFieldDescription("data of response")
     val data: String = "",
-    @DocDescription("status of response", isRequired = true)
+    @DocFieldDescription("status of response", isRequired = true)
     val status: Boolean = true,
-    @DocDescription("body of response")
+    @DocFieldDescription("body of response")
     val anuans: List<AnuanBody> = emptyList()
 )
 
 data class AnuanBody(
-    @DocDescription("data anuan nya ya")
+    @DocFieldDescription("data anuan nya ya")
     val dataanu: String = "",
-    @DocDescription("status anuan nya yaaaa")
+    @DocFieldDescription("status anuan nya yaaaa")
     val statusanu: Boolean = true,
-    @DocDescription("yah elaah")
+    @DocFieldDescription("yah elaah")
     val cihuy: AduuhBody = AduuhBody()
 )
 
 data class AduuhBody(
-    @DocDescription("duh ilah yaa", isRequired = true)
+    @DocFieldDescription("duh ilah yaa", isRequired = true)
     val duuh: String = "",
-    @DocDescription("anuannya nih")
+    @DocFieldDescription("anuannya nih")
     val yesanu: String = ""
 )
 
 data class Wew(
-    @DocDescription("hiyaaa")
+    @DocFieldDescription("hiyaaa")
     val hiyaa: String = "",
     val data: Cuk = Cuk()
 ) {
     data class Cuk(
-        @DocDescription("cuk")
+        @DocFieldDescription("cuk")
         val cuk: String = ""
     )
 }

@@ -1,7 +1,7 @@
 package me.hana.docs.data.descriptor
 
 import me.hana.docs.*
-import me.hana.docs.annotation.DocDescription
+import me.hana.docs.annotation.DocFieldDescription
 import kotlin.reflect.KClass
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.jvm.javaField
@@ -58,7 +58,7 @@ data class FieldDescriptor(
                 val saveKClassObject: MutableList<KClass<out Any>> = mutableListOf()
 
                 return prop.map {
-                    val annotation = it.javaField?.getAnnotation(DocDescription::class.java)
+                    val annotation = it.javaField?.getAnnotation(DocFieldDescription::class.java)
                     val desc = annotation?.description.orEmpty()
                     val isRequired = annotation?.isRequired.orFalse()
 
@@ -88,7 +88,11 @@ data class FieldDescriptor(
                     } else {
                         val type = returnTypeRaw.removeKotlinPackage().lastOfPackage()
                         if (!returnTypeRaw.contains("kotlin.")) {
-                            val clazzOf = Class.forName(returnTypeRaw.innerClassFixed()).kotlin
+                            val clazzOf = try {
+                                Class.forName(returnTypeRaw.innerClassFixed()).kotlin
+                            } catch (e: ClassNotFoundException) {
+                                throw (ClassNotFoundException("Class of '$returnTypeRaw' not allowed, please cek documentation"))
+                            }
                             saveKClassObject.add(clazzOf)
                             objectIncluded.add(returnTypeRaw.removeKotlinPackage().lastOfPackage())
 
