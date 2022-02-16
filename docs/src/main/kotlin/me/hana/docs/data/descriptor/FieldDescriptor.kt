@@ -29,19 +29,13 @@ data class FieldDescriptor(
             }.flatten().flatten()
 
             val allMember = extendMember + member
-
-            val field = FieldDescriptor(
+            return FieldDescriptor(
                 title = title,
                 jsonString = jsonString,
                 dataOrigin = data,
                 member = member,
                 objectIncluded = allMember
             )
-
-            val group = allMember.groupBy { it.objectId }
-            println("haduuuh -> $\n${group.toJsonString()}")
-
-            return field
         }
     }
 
@@ -70,6 +64,7 @@ data class FieldDescriptor(
 
                     val name = it.name
                     val returnTypeRaw = it.returnType.toString()
+                    println("return type found -> $returnTypeRaw")
                     val returnTypeWithId = if (
                         returnTypeRaw.startsWith("kotlin.Array")
                         || returnTypeRaw.startsWith("kotlin.collections.List")
