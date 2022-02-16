@@ -2,8 +2,28 @@ val ktor_version: String by project
 val logback_version: String by project
 val commonmark_version: String by project
 
+plugins {
+    `maven-publish`
+}
+
+repositories {
+    mavenCentral()
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "com.github.utsmannn"
+            artifactId = "hana-doc"
+            version = "0.0.4"
+
+            from(components["java"])
+        }
+    }
+}
+
 group = "me.hana"
-version = "0.0.1"
+version = "0.0.4"
 
 dependencies {
 
