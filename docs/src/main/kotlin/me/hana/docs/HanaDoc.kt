@@ -33,15 +33,13 @@ class HanaDocs(val configuration: Configuration) {
 
     fun getGroup(): List<EndPointGroup> {
         val groupEndPoint = endPoints.filter { it.isParent }
-        val newEndPoints = endPoints.filter { !it.isParent }
-
-        val data = groupEndPoint.map { group ->
-            val child = newEndPoints.filter { it.parent == group.path }.sortedBy { it.priority }
+        val data = groupEndPoint.map { ep ->
+            val list = endPoints.filter { it.parentIdentifier == ep.identifier }.sortedBy { it.priority }
             EndPointGroup(
-                name = group.title,
-                endPoint = group,
-                child = child,
-                priority = group.priority
+                name = ep.title,
+                endPoint = ep,
+                child = list,
+                priority = ep.priority
             )
         }.sortedBy { it.priority }
 
@@ -82,21 +80,21 @@ class HanaDocs(val configuration: Configuration) {
     }
 }
 
-fun Route.hanaDocs(title: String, parent: String = "", endPoint: EndPoint.() -> Unit = {}) {
+fun Route.hanaDocs(title: String, parent: Int = -1, endPoint: EndPoint.() -> Unit = {}) {
     val endPointInstance = EndPoint().apply(endPoint)
     val hana = application.plugin(HanaDocs)
     endPointInstance.title = title
     endPointInstance.isParent = false
-    endPointInstance.parent = parent
+    endPointInstance.parentIdentifier = parent
     hana.addEndPoint(this, endPointInstance)
 }
 
-fun Route.hanaDocsParent(title: String, parent: String = "", endPoint: EndPoint.() -> Unit = {}) {
+fun Route.hanaDocsParent(title: String, identifier: Int, endPoint: EndPoint.() -> Unit = {}) {
     val endPointInstance = EndPoint().apply(endPoint)
     val hana = application.plugin(HanaDocs)
     endPointInstance.title = title
     endPointInstance.isParent = true
-    endPointInstance.parent = parent
+    endPointInstance.identifier = identifier
     hana.addEndPoint(this, endPointInstance)
 }
 

@@ -16,6 +16,7 @@ data class EndPoint(
     var path: String = "",
     var description: String = "",
     internal var title: String = "",
+    internal var identifier: Int = -1,
     internal var method: String = "",
     internal var priority: Int = 100,
     internal var params: HashMap<String, ParameterDescriptor> = hashMapOf(),
@@ -26,7 +27,7 @@ data class EndPoint(
     internal var request: String = "",
     internal var isParent: Boolean = false,
     internal var childs: List<String> = emptyList(),
-    internal var parent: String = ""
+    internal var parentIdentifier: Int = -1
 ) {
 
     internal fun getAllObjectMember(): Map<String, List<FieldDescriptor.MemberFieldDescriptor>> {

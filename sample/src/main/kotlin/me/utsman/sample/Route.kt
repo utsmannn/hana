@@ -58,35 +58,49 @@ fun Application.configureRoute() {
     }
 
     routing {
-        route("/user") {
-            hanaDocsParent("Hiyaa") {
-                description = "user yaa hh parent nye"
-                setPriority(1)
-                headerParameter("Auth", String::class) {
-                    description = "nah ini yaaaa"
-                    sample = "hmmmmmm"
-                    isRequired()
+        route("v1") {
+            route("/user") {
+                hanaDocsParent("Hiyaa", 1) {
+                    description = "user yaa hh parent nye"
+                    setPriority(1)
+                    headerParameter("Auth", String::class) {
+                        description = "nah ini yaaaa"
+                        sample = "hmmmmmm"
+                        isRequired()
+                    }
+                }
+
+                get {
+                    call.respond(Wew())
+                }.hanaDocs("user", parent = 1) {
+                    description = "hiyaaaa"
+
+                    multipartParameter("name", String::class) {
+                        description = "this is name of file"
+                        sample = "haduh"
+                    }
+
+                    multipartParameter("image", DocFile::class) {
+                        description = "this is file"
+                        sample = DocFile("anu.jpg")
+                    }
+
+                    queryParameter("id", String::class) {
+                        description = "id of product"
+                        sample = "ukdghf784"
+                    }
                 }
             }
 
-            get {
-                call.respond(Wew())
-            }.hanaDocs("user", parent = "/user") {
-                description = "hiyaaaa"
-
-                multipartParameter("name", String::class) {
-                    description = "this is name of file"
-                    sample = "haduh"
+            route("/awer") {
+                hanaDocsParent("Awer", 2) {
+                    description = "the awer"
+                    setPriority(2)
                 }
-
-                multipartParameter("image", DocFile::class) {
-                    description = "this is file"
-                    sample = DocFile("anu.jpg")
-                }
-
-                queryParameter("id", String::class) {
-                    description = "id of product"
-                    sample = "ukdghf784"
+                get("/hmmmm") {
+                    call.respond("hmmm")
+                }.hanaDocs("tekewer", parent = 2) {
+                    description = desc4
                 }
             }
         }
@@ -148,18 +162,6 @@ fun Application.configureRoute() {
 
             queryParameter("wahh", String::class) {
                 description = "nah ini"
-            }
-        }
-
-        route("/awer") {
-            hanaDocsParent("Awer") {
-                description = "the awer"
-                setPriority(2)
-            }
-            get("/hmmmm") {
-                call.respond("hmmm")
-            }.hanaDocs("tekewer", parent = "/awer") {
-                description = desc4
             }
         }
     }
