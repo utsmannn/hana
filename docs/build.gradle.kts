@@ -15,7 +15,7 @@ publishing {
         create<MavenPublication>("maven") {
             groupId = "com.github.utsmannn"
             artifactId = "hana-doc"
-            version = "0.0.6"
+            version = "0.0.7"
 
             from(components["java"])
         }
@@ -23,7 +23,7 @@ publishing {
 }
 
 group = "me.hana"
-version = "0.0.6"
+version = "0.0.7"
 
 dependencies {
 
