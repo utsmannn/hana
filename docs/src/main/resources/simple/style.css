@@ -115,7 +115,7 @@ table {
 
 .required {
     color: #9e0000;
-    font-size: x-small;
+    font-size: small;
     text-decoration: none;
     vertical-align: top;
 }

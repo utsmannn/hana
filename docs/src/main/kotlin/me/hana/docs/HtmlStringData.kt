@@ -48,7 +48,11 @@ data class HtmlStringData(
                     }
 
                     div(classes = "title-group") {
-                        h4 { +"Mics" }
+                        a(href = "#object") {
+                            h4(classes = "link-none") {
+                                +"Etc"
+                            }
+                        }
                     }
 
                     ul(classes = "nav list-group") {
@@ -285,6 +289,12 @@ data class HtmlStringData(
                             tr {
                                 th(scope = ThScope.row) {
                                     +key
+                                    if (param.isRequired) {
+                                        span(classes = "required") {
+                                            +"*"
+                                        }
+                                    }
+
                                 }
                                 td {
                                     val type = param.simpleType

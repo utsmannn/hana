@@ -13,7 +13,7 @@ import kotlin.reflect.full.createInstance
 import kotlin.reflect.jvm.jvmName
 
 data class EndPoint(
-    var path: String = "",
+    internal var path: String = "",
     var description: String = "",
     internal var title: String = "",
     internal var identifier: Int = -1,
@@ -100,37 +100,20 @@ private fun <T: Any> EndPoint.paramOf(name: String, location: ParameterDescripto
         }
     }
 
-
     val paramDescriptor = ParameterDescriptor(
         name = name,
         desc = parameter.description,
         type = type,
         simpleType = simpleType,
         sample = sample.invoke(false),
+        isRequired = parameter.isRequired,
         sampleBeauty = sample.invoke(true),
         location = location
     )
     params[name] = paramDescriptor
 }
 
-fun EndPoint.responseDoc(data: String) {
-    response = data
-}
-
-fun EndPoint.bodyDoc(data: String) {
-    request = data
-}
-
-fun EndPoint.sampleBody(data: Any) {
-    response = data.toJsonString()
-}
-
 fun EndPoint.responseSample(data: Any) {
     val fieldDescriptor = FieldDescriptor.of(data)
     responseField = fieldDescriptor
-}
-
-fun EndPoint.requestSample(data: Any) {
-    val fieldDescriptor = FieldDescriptor.of(data)
-    requestField = fieldDescriptor
 }

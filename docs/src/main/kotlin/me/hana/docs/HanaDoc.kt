@@ -34,14 +34,17 @@ class HanaDocs(val configuration: Configuration) {
     fun getGroup(): List<EndPointGroup> {
         val groupEndPoint = endPoints.filter { it.isParent }
         val data = groupEndPoint.map { ep ->
-            val list = endPoints.filter { it.parentIdentifier == ep.identifier }.sortedBy { it.priority }
+            val list = endPoints
+                .filter { !it.isParent }
+                .filter { it.parentIdentifier == ep.identifier }
+                .sortedBy { it.priority }
             EndPointGroup(
                 name = ep.title,
                 endPoint = ep,
                 child = list,
                 priority = ep.priority
             )
-        }.sortedBy { it.priority }
+        }.sortedBy { it.priority }.filter { it.child.isNotEmpty() }
 
         return data
     }
