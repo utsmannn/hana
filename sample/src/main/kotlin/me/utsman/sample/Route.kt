@@ -6,6 +6,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import me.hana.docs.HanaDocs
 import me.hana.docs.data.DocFile
+import me.hana.docs.data.isRequired
 import me.hana.docs.endpoint.*
 import me.hana.docs.hanaDocs
 import me.hana.docs.hanaDocsParent
@@ -43,7 +44,7 @@ fun Application.configureRoute() {
     val requiredAuthorization: (EndPoint) -> Unit = {
         it.run {
             headerParameter("Authorization", String::class) {
-                isRequired = true
+                isRequired()
                 description = """
                             In ac sollicitudin leo. Ut sem nunc, pretium sed blandit id, placerat sit amet velit. Nulla et dolor vel nisl laoreet euismod interdum quis nisl.
                         """.trimIndent()
@@ -127,7 +128,7 @@ fun Application.configureRoute() {
                     multipartParameter("image", DocFile::class) {
                         description = "Aliquam at tortor et elit convallis consequat a et leo"
                         sample = DocFile("somefile.png")
-                        isRequired = true
+                        isRequired()
                     }
 
                     multipartParameter("filename", String::class) {

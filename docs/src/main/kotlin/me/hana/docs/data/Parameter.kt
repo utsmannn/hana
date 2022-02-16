@@ -4,16 +4,11 @@ import kotlin.reflect.KClass
 
 data class Parameter<T: Any>(
     internal var type: KClass<T>? = null,
-    var isRequired: Boolean = false,
+    internal var isRequired: Boolean = false,
     var description: String = "",
     var sample: T? = null
-) {
-    fun isRequired() {
-        isRequired = true
-    }
+)
 
-}
-
-fun <T: Any>Parameter<T>.isRequireds() {
+fun <T: Any>Parameter<T>.isRequired() {
     isRequired = true
 }
