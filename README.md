@@ -10,7 +10,7 @@
   <a href="https://jitpack.io/#utsmannn/hana"><img alt="Jitpack" src="https://jitpack.io/v/utsmannn/hana.svg"></a>
   <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"></a>
   <a href="https://github.com/utsmannn/hana/pulls"><img alt="Pull request" src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat"></a>
-  <a href="https://ktor.io/docs/eap/welcome.html"><img alt="Kotlin Ktor" src="https://img.shields.io/badge/ktor-%5E2.0.0--beta-red"></a>
+  <a href="https://ktor.io/docs/eap/welcome.html"><img alt="Kotlin Ktor" src="https://img.shields.io/badge/Ktor-%5E2.0.0--beta-red"></a>
   <a href="https://twitter.com/utsmannn"><img alt="Twitter" src="https://img.shields.io/twitter/follow/utsmannn"></a>
   <a href="https://github.com/utsmannn"><img alt="Github" src="https://img.shields.io/github/followers/utsmannn?label=follow&style=social"></a>
   <h3 align="center">Rest documentation plugin for Kotlin Ktor</h3>
@@ -19,6 +19,9 @@
 
 |![](https://i.ibb.co/xsB1Rn7/ss3.png)|![](https://i.ibb.co/TRpFn4C/ss4.png)|
 |--|--|
+
+# Disclaimer
+**This plugin only support for Kotlin Ktor 2.0.0-beta or later.**
 
 
 # Download
