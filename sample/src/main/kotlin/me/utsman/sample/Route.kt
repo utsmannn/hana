@@ -18,7 +18,7 @@ import me.utsman.sample.doc.UserToken
 fun Application.configureRoute() {
     install(HanaDocs) {
         title = "Lorem ipsum dolor sit amet"
-        path = "/haduh"
+        path = "/doc"
         github = "https://github.com/utsmannn"
         postman = "https://app.getpostman.com/run-collection/65a1ff2b518c8e46615b"
         author = "Muhammad utsman"
