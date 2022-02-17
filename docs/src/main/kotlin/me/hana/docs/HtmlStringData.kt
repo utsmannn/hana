@@ -326,7 +326,7 @@ data class HtmlStringData(
 
             val space = " ".repeat(2)
             val hostValid = if (host.contains("http")) {
-                host
+                "$host/$path".replace("//", "/")
             } else {
                 "https://$host/$path".replace("//", "/")
             }

@@ -16,6 +16,7 @@ fun Application.configureRoute() {
     install(HanaDocs) {
         title = "Lorem ipsum dolor sit amet"
         path = "/doc"
+        host = "https://hanadoc.herokuapp.com"
         github = "https://github.com/utsmannn"
         postman = "https://app.getpostman.com/run-collection/65a1ff2b518c8e46615b"
         author = "Muhammad utsman"
