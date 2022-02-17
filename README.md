@@ -108,8 +108,8 @@ The `DocFieldDescription` used by data object when you rendered in documentation
 For the implemention of route, you must used `hanaDocsParent` and `hanaDocs`. They are method for generating `EndPoint` class config.
 | param | type | desc |
 |---|---|---|
-|`hanaDocsParent`| Extensions | setup the parent of route, this extensions used in route without method (etc. `route("\blabla")`) |
-|`hanaDocs`| Extensions | setup the method of route, this extensions used in route with method (etc. `get("\kursi")` |
+|`hanaDocsParent`| Extensions | setup the parent of route, this extensions used in route without method (etc. `route("/blabla")`) |
+|`hanaDocs`| Extensions | setup the method of route, this extensions used in route with method (etc. `get("/kursi")` |
 
 
 ## Sample
@@ -166,7 +166,7 @@ route("/post") {
 See on fully sample on [sample](/sample) module
 
 ## Limitation
-- Not supported for render `List`, use `Array` instead
+- Not supported for render `List`, use data nested list instead. Check [](sample/src/main/kotlin/me/utsman/sample/Route.kt#L167) 
 - Not supported for render generic class
 - and other, please create issue
 

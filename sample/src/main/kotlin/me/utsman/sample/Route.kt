@@ -10,10 +10,7 @@ import me.hana.docs.data.isRequired
 import me.hana.docs.endpoint.*
 import me.hana.docs.hanaDocs
 import me.hana.docs.hanaDocsParent
-import me.utsman.sample.doc.Post
-import me.utsman.sample.doc.User
-import me.utsman.sample.doc.UserRequest
-import me.utsman.sample.doc.UserToken
+import me.utsman.sample.doc.*
 
 fun Application.configureRoute() {
     install(HanaDocs) {
@@ -167,11 +164,13 @@ fun Application.configureRoute() {
                     }
 
                     responseSample(
-                        arrayOf(
-                            Post("1ae", "title1", "https://imageurl.com/image1.png"),
-                            Post("1sdf", "title2", "https://imageurl.com/image2.png"),
-                            Post("1sds", "title3", "https://imageurl.com/image2.png"),
-                            Post("1df", "title4", "https://imageurl.com/image2.png")
+                        PostResponse(
+                            data = listOf(
+                                Post("1ae", "title1", "https://imageurl.com/image1.png"),
+                                Post("1sdf", "title2", "https://imageurl.com/image2.png"),
+                                Post("1sds", "title3", "https://imageurl.com/image2.png"),
+                                Post("1df", "title4", "https://imageurl.com/image2.png")
+                            )
                         )
                     )
                 }
