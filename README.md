@@ -23,6 +23,8 @@
 # Disclaimer
 **This plugin only support for Kotlin Ktor 2.0.0-beta or later.**
 
+# Live demo
+Live of `sample` module can be found here https://hanadoc.herokuapp.com/doc
 
 # Download
 
