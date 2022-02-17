@@ -27,3 +27,13 @@ dependencies {
     implementation("io.ktor:ktor-server-netty-jvm:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
 }
+
+tasks.withType<Jar> {
+    manifest {
+        attributes["Main-Class"] = "me.utsman.sample.ApplicationKt"
+    }
+
+    exclude("META-INF/*.RSA", "META-INF/*.SF", "META-INF/*.DSA")
+    tasks.withType<Jar> { duplicatesStrategy = DuplicatesStrategy.EXCLUDE }
+    from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
+}
