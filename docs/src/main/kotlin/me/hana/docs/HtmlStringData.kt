@@ -307,7 +307,7 @@ data class HtmlStringData(
                                     }
                                 }
                                 td {
-                                    +param.desc
+                                    markdown(param.desc)
                                 }
                                 td {
                                     +param.location.name

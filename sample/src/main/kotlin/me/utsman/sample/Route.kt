@@ -160,7 +160,7 @@ fun Application.configureRoute() {
                     }
 
                     queryParameter("user_id", String::class) {
-                        description = "laoreet sed odio in"
+                        description = "**laoreet** sed odio in"
                         sample = "123"
                     }
 
