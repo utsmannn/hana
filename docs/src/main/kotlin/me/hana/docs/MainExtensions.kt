@@ -63,3 +63,17 @@ internal fun HTMLTag.markdown(markdown: String, inline: Boolean = false) {
 internal fun <T: Any>KClass<T>.isDocFile(): Boolean {
     return isInstance(DocFile("")).orFalse()
 }
+
+fun String.innerClassFixed(): String {
+    val listPart = split(".")
+    val size = listPart.lastIndex
+    return try {
+        if (listPart[size-1].contains("([A-Z])".toRegex())) {
+            replaceAfter(listPart[size-1], "\$${listPart[size]}")
+        } else {
+            this
+        }
+    } catch (e: IndexOutOfBoundsException) {
+        this
+    }
+}

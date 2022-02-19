@@ -49,14 +49,26 @@ class HanaDocs(val configuration: Configuration) {
         return data
     }
 
-    fun getAllObject(): Map<String, List<FieldDescriptor.MemberFieldDescriptor>> {
+    fun getAllObjectField(): Map<String, List<FieldDescriptor.MemberFieldDescriptor>> {
         val objects = endPoints.map {
-            it.getAllObjectMember().map {
+            it.getAllObjectFieldMember().map {
                     obj -> obj.value
             }.flatten()
         }.flatten()
 
         return objects.groupBy { it.objectId }
+    }
+
+    fun getAllObjectData(): Map<String, List<Any?>> {
+        val data = getAllObjectField().map {
+            val dataMap = it.value.map { member ->
+                member.originalData
+            }.distinctBy { d -> d?.javaClass?.simpleName }
+
+            it.key to dataMap
+        }.toMap()
+
+        return data
     }
 
     companion object : ApplicationPlugin<Application, Configuration, HanaDocs> {

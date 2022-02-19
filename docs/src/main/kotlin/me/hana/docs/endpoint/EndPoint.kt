@@ -9,8 +9,6 @@ import me.hana.docs.lastOfPackage
 import me.hana.docs.removeNullString
 import me.hana.docs.toJsonString
 import kotlin.reflect.KClass
-import kotlin.reflect.full.createInstance
-import kotlin.reflect.jvm.jvmName
 
 data class EndPoint(
     internal var path: String = "",
@@ -30,11 +28,12 @@ data class EndPoint(
     internal var parentIdentifier: Int = -1
 ) {
 
-    internal fun getAllObjectMember(): Map<String, List<FieldDescriptor.MemberFieldDescriptor>> {
+    internal fun getAllObjectFieldMember(): Map<String, List<FieldDescriptor.MemberFieldDescriptor>> {
         val objectIncludedInParam = params.map { it.value.type }.mapNotNull {
             try {
-                val kClass = Class.forName(it).kotlin
-                FieldDescriptor.MemberFieldDescriptor.of(kClass).member
+                val instance = Class.forName(it.innerClassFixed()).getDeclaredConstructor().newInstance()
+                val kClass = instance.javaClass.kotlin
+                FieldDescriptor.MemberFieldDescriptor.of(kClass, instance).member
             } catch (e: ClassNotFoundException) {
                 null
             }
@@ -47,6 +46,17 @@ data class EndPoint(
         }.flatten()
 
         return listGroup.groupBy { it.objectId }
+    }
+
+    internal fun getAllObjectDataMember(): Map<String, List<Any>> {
+        val data = getAllObjectFieldMember().map {
+            val dataMap = it.value.map { member ->
+                Class.forName(member.type.innerClassFixed()).getDeclaredConstructor().newInstance()
+            }
+
+            it.key to dataMap
+        }.toMap()
+        return data
     }
 
     companion object {
@@ -85,7 +95,8 @@ private fun <T: Any> EndPoint.paramOf(name: String, location: ParameterDescripto
     val type = if (clazz.isDocFile()) {
         "File"
     } else {
-        FieldDescriptor.MemberFieldDescriptor.of(clazz).type
+        val instance = parameter.sample
+        FieldDescriptor.MemberFieldDescriptor.of(clazz, instance).type
     }
     val simpleType = if (clazz.isDocFile()) {
         "File"

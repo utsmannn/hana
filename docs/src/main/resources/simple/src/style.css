@@ -9,7 +9,7 @@ body {
 /* Toggle Styles */
 
 #viewport {
-    padding-left: 250px;
+    padding-left: 300px;
     -webkit-transition: all 0.5s ease;
     -moz-transition: all 0.5s ease;
     -o-transition: all 0.5s ease;
@@ -27,10 +27,10 @@ body {
 #sidebar {
     z-index: 1000;
     position: fixed;
-    left: 250px;
-    width: 250px;
+    left: 300px;
+    width: 300px;
     height: 100%;
-    margin-left: -250px;
+    margin-left: -300px;
     overflow-y: auto;
     -webkit-transition: all 0.5s ease;
     -moz-transition: all 0.5s ease;
@@ -143,4 +143,28 @@ label {
 
 .link-none-original {
     text-decoration: none;
+}
+
+.modal-content {
+    height: 80%;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.compiler-info .languages {
+    margin-right: 10px;
+}
+
+.panel {
+    cursor: pointer;
+}
+
+.compiler-info {
+    padding-top: 20px
+}
+
+.CodeMirror-gutter, .CodeMirror-scroll {
+    min-height: 300px;
 }

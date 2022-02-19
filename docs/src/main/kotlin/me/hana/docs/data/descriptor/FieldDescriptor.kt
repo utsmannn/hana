@@ -22,11 +22,11 @@ data class FieldDescriptor(
             val title = data::class.simpleName.orEmpty()
             val jsonString = data.toJsonString()
 
-            val clazzReturn = MemberFieldDescriptor.of(type)
+            val clazzReturn = MemberFieldDescriptor.of(type, data)
             val member = clazzReturn.member
             val extendMember = member.map {
                 it.saveKClassObject.map { kClass ->
-                    MemberFieldDescriptor.of(kClass).member
+                    MemberFieldDescriptor.of(kClass, data).member
                 }
             }.flatten().flatten()
 
@@ -49,11 +49,12 @@ data class FieldDescriptor(
         internal var isRequired: Boolean = false,
         internal var description: String = "",
         internal var objectIncluded: List<String> = listOf(),
+        internal var originalData: Any? = null,
     ) {
         val saveKClassObject: MutableList<KClass<out Any>> = mutableListOf()
 
         companion object {
-            fun <T : Any> of(data: KClass<out T>): ClazzReturn {
+            fun <T : Any> of(data: KClass<out T>, originalData: T?): ClazzReturn {
                 val prop = data.declaredMemberProperties
                 val objectIncluded: MutableList<String> = mutableListOf()
                 val objectId = data.simpleName.orEmpty()
@@ -78,7 +79,7 @@ data class FieldDescriptor(
                             ?.lastOfPackage()
                             .orEmpty()
 
-                        val instance = Class.forName(originType).kotlin
+                        val instance = Class.forName(originType.innerClassFixed()).kotlin
                         saveKClassObject.add(instance)
                         if (!type.contains("kotlin.")) {
                             objectIncluded.add(type)
@@ -111,7 +112,8 @@ data class FieldDescriptor(
                         idOfType = returnTypeWithId.id,
                         isRequired = isRequired,
                         description = desc,
-                        objectIncluded = objectIncluded
+                        objectIncluded = objectIncluded,
+                        originalData = originalData
                     ).apply {
                         this.saveKClassObject.addAll(saveKClassObject)
                     }
@@ -119,23 +121,11 @@ data class FieldDescriptor(
 
                 return ClazzReturn(
                     type = data.qualifiedName.orEmpty(),
-                    member = member
+                    member = member,
+                    originalData = originalData
                 )
             }
 
-            private fun String.innerClassFixed(): String {
-                val listPart = split(".")
-                val size = listPart.lastIndex
-                return try {
-                    if (listPart[size-1].contains("([A-Z])".toRegex())) {
-                        replaceAfter(listPart[size-1], "\$${listPart[size]}")
-                    } else {
-                        this
-                    }
-                } catch (e: IndexOutOfBoundsException) {
-                    this
-                }
-            }
 
             private data class TypeWithId(val type: String, val id: String = "")
         }
@@ -143,6 +133,7 @@ data class FieldDescriptor(
 
     data class ClazzReturn(
         var type: String = "",
-        var member: List<MemberFieldDescriptor> = emptyList()
+        var member: List<MemberFieldDescriptor> = emptyList(),
+        var originalData: Any? = null
     )
 }

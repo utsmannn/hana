@@ -1,6 +1,8 @@
 package me.hana.docs
 
 import io.ktor.http.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
 import me.hana.docs.data.descriptor.FieldDescriptor
@@ -112,6 +114,7 @@ data class HtmlStringData(
                         }
 
                     }
+                    /* END OF CONTENT*/
                 }
             }
 
@@ -205,6 +208,7 @@ data class HtmlStringData(
             }
             val json = {
                 if (fieldDescriptor.jsonString.isNotEmpty()) {
+                    br { }
                     h5 {
                         +"Sample"
                     }
@@ -231,7 +235,8 @@ data class HtmlStringData(
         }
 
         private fun FlowContent.renderObject(hanaDocs: HanaDocs) {
-            val members = hanaDocs.getAllObject()
+            val members = hanaDocs.getAllObjectField()
+            val data = hanaDocs.getAllObjectData()
             br { }
             h1 {
                 id = "object"
@@ -239,13 +244,20 @@ data class HtmlStringData(
             }
             hr { }
             br { }
+
             members.forEach { (id, childMember) ->
                 val childValid = childMember.distinctBy { it.name }
                 h4 {
                     this.id = id.idTypeOf()
                     +id
                 }
+                val sampleFound = data.map { it.value }.flatten().find { it?.javaClass?.simpleName == id }
                 renderTableField(childValid)
+                if (sampleFound != null && hanaDocs.configuration.enableJsonSampleObject) {
+                    br { }
+                    renderSample(sampleFound)
+                }
+                br { }
                 br { }
             }
         }
@@ -260,7 +272,7 @@ data class HtmlStringData(
             val path = endPoint.path
             val method = endPoint.method
 
-            val objectAvailable = hanaDocs.getAllObject().map { it.value }.flatten()
+            val objectAvailable = hanaDocs.getAllObjectField().map { it.value }.flatten()
 
             val isObjectData: (type: String) -> Boolean = {
                 objectAvailable.map { obj -> obj.objectId }.contains(it)
@@ -436,47 +448,93 @@ data class HtmlStringData(
         private fun String.idLink(): String {
             return replace(" ", "-")
         }
-    }
-}
 
-fun FlowContent.renderTableField(member: List<FieldDescriptor.MemberFieldDescriptor>) {
-    if (member.isNotEmpty()) {
-        table(classes = "table") {
-            thead {
-                tr {
-                    th(scope = ThScope.col) {
-                        +"Parameter"
+        private fun FlowContent.renderTableField(member: List<FieldDescriptor.MemberFieldDescriptor>) {
+            if (member.isNotEmpty()) {
+                table(classes = "table") {
+                    thead {
+                        tr {
+                            th(scope = ThScope.col) {
+                                +"Parameter"
+                            }
+                            th(scope = ThScope.col) {
+                                +"Type"
+                            }
+                            th(scope = ThScope.col) {
+                                +"Description"
+                            }
+                        }
                     }
-                    th(scope = ThScope.col) {
-                        +"Type"
-                    }
-                    th(scope = ThScope.col) {
-                        +"Description"
+                    tbody {
+                        member.forEach { field ->
+                            tr {
+                                th(scope = ThScope.row) {
+                                    +field.name
+                                    if (field.isRequired) {
+                                        span(classes = "required") {
+                                            +"*"
+                                        }
+                                    }
+                                }
+                                td {
+                                    if (field.idOfType.isNotEmpty()) {
+                                        a("#${field.idOfType}") {
+                                            +field.type
+                                        }
+                                    } else {
+                                        +field.type
+                                    }
+                                }
+                                td {
+                                    +field.description
+                                }
+                            }
+                        }
                     }
                 }
             }
-            tbody {
-                member.forEach { field ->
-                    tr {
-                        th(scope = ThScope.row) {
-                            +field.name
-                            if (field.isRequired) {
-                                span(classes = "required") {
-                                    +"*"
-                                }
-                            }
+        }
+
+        private fun FlowContent.renderSample(data: Any) {
+            val modalId = "modal-${data.javaClass.simpleName.idLink()}"
+
+            button(type = ButtonType.button, classes = "btn btn-default") {
+                attributes["rel"] = "modal"
+                attributes["data-toggle"] = "modal"
+                attributes["data-target"] = "#$modalId"
+                +"Json sample"
+            }
+            br { }
+
+            modal(modalId, data.javaClass.simpleName) {
+                codeBlock(data.toJsonString(), "json")
+            }
+        }
+
+        private fun FlowContent.renderQuicktype(data: Any) {
+            div {
+                div(classes = "quicktype") {
+                    id = "content-${data.javaClass.simpleName.idLink()}"
+                    attributes["data-type-name"] = data.javaClass.simpleName
+                    attributes["data-languages"] = "Kotlin Java Swift TypeScript JSON Schema"
+
+                    +data.toJsonString(true)
+                }
+            }
+        }
+
+        private fun FlowContent.modal(modalId: String, modalTitle: String, content: DIV.() -> Unit) {
+            div("modal fade") {
+                id = modalId
+                attributes["tabindex"] = "-1"
+
+                div("modal-dialog") {
+                    div("modal-content") {
+                        div("modal-header") {
+                            h5("modal-title") { +modalTitle }
                         }
-                        td {
-                            if (field.idOfType.isNotEmpty()) {
-                                a("#${field.idOfType}") {
-                                    +field.type
-                                }
-                            } else {
-                                +field.type
-                            }
-                        }
-                        td {
-                            +field.description
+                        div("modal-body") {
+                            content()
                         }
                     }
                 }
